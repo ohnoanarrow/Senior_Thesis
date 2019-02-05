@@ -1,0 +1,29 @@
+proxies = [
+            '139.59.72.235',
+            '159.89.162.98',
+            '159.65.148.201',
+            '62.244.38.62',
+            '207.188.231.141',
+            '45.32.21.84',
+            '94.253.15.25',
+            '202.174.46.113',
+            '103.73.224.53',
+            '190.82.94.13',
+            '176.120.220.125',
+            '181.113.225.198'
+]
+
+proxy_pool = cycle(proxies)
+
+quote_page = 'https://mtgdecks.net/Modern/tournaments/page:2'
+# query the website and return the html to the variable page
+page = requests.get(quote_page)
+# parse the html using beautiful soup and store in variable soup
+soup = BeautifulSoup(page.text, 'html.parser')
+
+str= r"[\x2D]"
+counter = 0
+for link in soup.find_all('a', attrs={'href':re.compile(str)}):
+    if counter > 0 and counter <= 20:
+        print(link.get('href'))
+    counter += 1
