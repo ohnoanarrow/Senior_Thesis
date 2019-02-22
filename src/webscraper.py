@@ -58,6 +58,8 @@ none_counter = 0
 rank_counter = 1
 
 for tag in soup.find_all('tr'):
+    color_string = ""
+    sb_color_string = ""
     # The strong tag will first come up with deck ranking
     if tag.strong is None:
         none_counter += 1
