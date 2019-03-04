@@ -43,8 +43,8 @@ color_dictionary = {
 tourn_num = 0
 
 def PageParser(page_number):
-""" This function iterates through the tournament pages and grabs tournament hrefs """
-""" It also feeds the tournament number and tournament href into the DeckParser function"""
+    """ This function iterates through the tournament pages and grabs tournament hrefs """
+    """ It also feeds the tournament number and tournament href into the DeckParser function"""
 
     # specify the url
     quote_page = 'https://mtgdecks.net/Modern/tournaments/page:' + page_number
@@ -57,9 +57,8 @@ def PageParser(page_number):
 
     counter = 0
     for link in soup.find_all('a', attrs={'href':re.compile(str)}):
-        if counter > 0 and counter <= 5: #TODO Change this back to 20
+        if counter > 0 and counter <= 5 and link.get('href') is not None: #TODO Change this back to 20
             decks_page = 'https://mtgdecks.net/' + link.get('href')
-            print(decks_page)
             page = requests.get(decks_page)
             soupy = BeautifulSoup(page.text, 'html.parser')
             global tourn_num
@@ -68,9 +67,28 @@ def PageParser(page_number):
         counter += 1
 
 def DeckParser(tourn_num, soup):
-""" This function iterates through the decks and finds their color"""
-""" It also feeds the deck color, tournament number, deck rank, and deck href
+    """ This function iterates through the decks and finds their color"""
+    """ It also feeds the deck color, tournament number, deck rank, and deck href
     into the CardParser function"""
+
+    # Grab the HREFS for the top 4 decks
+    counter = 0
+    first = ""
+    second = ""
+    third = ""
+    fourth = ""
+
+    for deck in soup.find_all('a', attrs={'href':re.compile("decklist")}):
+        if deck.get('href') is not None:
+            if counter == 1:
+                first = deck.get('href')
+            elif counter == 2:
+                second = deck.get('href')
+            elif counter == 3:
+                third = deck.get('href')
+            elif counter == 4:
+                fourth = deck.get('href')
+        counter += 1
 
     # Isolating the top 4 decks
     none_counter = 0
@@ -79,7 +97,8 @@ def DeckParser(tourn_num, soup):
     for tag in soup.find_all('tr'):
         placeholder_string = ""
         color_string = ""
-        sb_color_string = ""
+
+        # sb_color_string = ""
         # The strong tag will first come up with deck ranking
         if tag.strong is None:
             none_counter += 1
@@ -100,11 +119,30 @@ def DeckParser(tourn_num, soup):
                 color_string = ''.join(color_string_sorter)
                 deck_color = color_dictionary.get(color_string)
 
+                # Making my soup based on which deck I'm looking at
+                if rank_counter == 1:
+                    cards_page = 'https://mtgdecks.net' + first
+                    page = requests.get(cards_page)
+                    soupy = BeautifulSoup(page.text, 'html.parser')
+                elif rank_counter == 2:
+                    cards_page = 'https://mtgdecks.net' + second
+                    page = requests.get(cards_page)
+                    soupy = BeautifulSoup(page.text, 'html.parser')
+                elif rank_counter == 3:
+                    cards_page = 'https://mtgdecks.net' + third
+                    page = requests.get(cards_page)
+                    soupy = BeautifulSoup(page.text, 'html.parser')
+                elif rank_counter == 4:
+                    cards_page = 'https://mtgdecks.net' + fourth
+                    page = requests.get(cards_page)
+                    soupy = BeautifulSoup(page.text, 'html.parser')
+
                 CardParser(tourn_num, rank_counter, deck_color, soupy)
 
                 rank_counter += 1
 
 def CardParser(tourn_num, rank, deck_color, soup):
+    return None
 
 def main():
     i = 1
