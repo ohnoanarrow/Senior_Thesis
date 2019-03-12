@@ -41,6 +41,8 @@ color_dictionary = {
 }
 
 tourn_num = 0
+card_ID = 1
+cards = []
 
 def PageParser(page_number):
     """ This function iterates through the tournament pages and grabs tournament hrefs """
@@ -57,7 +59,7 @@ def PageParser(page_number):
 
     counter = 0
     for link in soup.find_all('a', attrs={'href':re.compile(str)}):
-        if counter > 0 and counter <= 5 and link.get('href') is not None: #TODO Change this back to 20
+        if counter > 0 and counter <= 1 and link.get('href') is not None: #TODO Change this back to 20
             decks_page = 'https://mtgdecks.net/' + link.get('href')
             page = requests.get(decks_page)
             soupy = BeautifulSoup(page.text, 'html.parser')
@@ -142,7 +144,26 @@ def DeckParser(tourn_num, soup):
                 rank_counter += 1
 
 def CardParser(tourn_num, rank, deck_color, soup):
-    return None
+    global cards
+    global card_ID
+
+    str = re.compile("\\n")
+
+    for tag in soup.find_all('tr'):
+        for x in tag.find_all_next(string=True):
+            if x != str:
+                print(x)
+        #arch = tag.find('th', attrs={'class':"type"})
+        #if arch is not None:
+        #    tag.find('')
+        #archetype = tag.get('class')
+        #archetype = archetype[1]
+
+        #if archetype != "Sideboard":
+        #    print(archetype)
+
+        #else:
+        #    print("Hello world!")
 
 def main():
     i = 1
