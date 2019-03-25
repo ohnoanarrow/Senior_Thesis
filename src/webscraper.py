@@ -40,6 +40,8 @@ color_dictionary = {
     "bgruw": "rainbow"
 }
 
+typelist = ["\nCreature ", "\nArtifact ", "\nInstant ", "\nSorcery ", "\nEnchantment ", "\nPlaneswalker ", "\nLand ", "\nSideboard "]
+
 tourn_num = 0
 card_ID = 1
 cards = []
@@ -105,7 +107,7 @@ def DeckParser(tourn_num, soup):
         if tag.strong is None:
             none_counter += 1
         # This is where we pull the top 4 decks
-        if none_counter > 0 and none_counter < 2 and rank_counter <= 4:
+        if none_counter > 0 and none_counter < 2 and rank_counter <= 1: #TODO change rank_counter back to 4
             # Making sure there is a value under the strong tag
             if tag.strong is not None:
                 color = tag.find('div', attrs={'class':"small"})
@@ -147,26 +149,86 @@ def CardParser(tourn_num, rank, deck_color, soup):
     global cards
     global card_ID
 
-    str = re.compile("\\n")
+    str = re.compile("[0-9]")
 
-    for tag in soup.find_all('tr'):
-        for x in tag.find_all_next(string=True):
-            if x != str:
-                print(x)
-        #arch = tag.find('th', attrs={'class':"type"})
-        #if arch is not None:
-        #    tag.find('')
-        #archetype = tag.get('class')
-        #archetype = archetype[1]
+    soup2 = soup.find('div', attrs={'class':"cards"})
+    archetype = ""
+    cardname = ""
+    number = ""
+    rarity = ""
+    mana_cost = 0
+    card_color = ""
+    abc = re.compile("[a-z]")
+    cardCheck = True
 
-        #if archetype != "Sideboard":
-        #    print(archetype)
+    # Each table corresponds to a new archetype
+    for arch in soup2.find_all('table'):
+        for arch2 in arch.find_all('tr'):
+            # Finding the archetype class
+            string_finder = arch2.get('class')
+            # If they found no class
+            if string_finder is None:
+                # Text children
+                for x in arch2.descendants:
+                    global typelist
+                    # For finding archetypes
+                    if x in typelist:
+                        archetype = x
 
-        #else:
-        #    print("Hello world!")
+            # Individual cards
+            elif string_finder[0] == 'cardItem':
+                # For each attribute that we're looking for
+                for attrs in arch2.find_all('td'):
+                    # This will get us either the number or the mana
+                    card_chars = attrs.get('class')
+                    position = len(card_chars) - 1
+                    if card_chars[position] == 'number':
+                        rarity_class = attrs.find('span')
+                        rarity_letter = rarity_class.get('class')
+                        rarity = rarity_letter[1]
 
+                        qualities = attrs.get_text(strip=True)
+                        number = qualities[:1]
+                        cardname = qualities[1:]
+
+                        if cardname not in cards:
+                            cardCheck = False
+                            cards.append(cardname)
+                        else:
+                            cardCheck = True
+                    elif card_chars[position] == 'manaCost':
+                        # If the current card isn't catalogued
+                        mana_cost = 0
+                        card_color = ""
+                        if cardCheck is False:
+                            for mana in attrs.find_all('span'):
+                                mana_list = mana.get('class')
+                                if mana_list[1] == 'ms-cost':
+                                    mana_type = mana_list[2]
+                                    mt = mana_type[2:]
+                                    if abc in mt:
+                                        # Creating the card color string
+                                        card_color += mt
+                                        mana_cost += 1
+                                    else:
+                                        mana_cost += int(mt)
+                                else:
+                                    mana_type = mana_list[1]
+                                    mt = mana_type[2:]
+                                    card_color += mt
+                                    mana_cost += 1
+
+                                color_string_sorter = sorted(card_color)
+                                card_color = ''.join(color_string_sorter)
+
+        # Here is where we decide whether it's a sideboard or otherwise
+        # If cardCheck == False: add to Cards table, card_ID++
+        # Else: just add to relevant Sideboard or colors table
+        # Once sideboard is populated, do decks table
 def main():
     i = 1
+
+
 
     # TODO Change this back to go through all the pages
     # for i in range(1,3):

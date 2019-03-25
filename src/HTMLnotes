@@ -1,0 +1,26 @@
+<div class="cards">
+  <table> <!-- New archetype -->
+    <tbody>
+      <tr>
+        <th class="type ____">
+          <div class="archetype"></div>
+          ARCHETYPE
+          <span class="small">[totalnum]</span>
+          </th>
+        </tr>
+      <tr class="cardItem">
+        <td class="number">
+          <span class="rarity __"></span>
+          # <!-- Number of said card -->
+          <a href="blahblahblah">CARD NAME</a> <!-- Name of card -->
+        <td class="__ manaCost">
+          <span class="___ ms-COST ___"></span>
+          .
+          . <!-- As many mana costs as necessary -->
+          .
+          </td>
+      </tbody>
+    </table>
+  </div>
+
+<!-- One step back from wholeDeck is Sideboard -->
