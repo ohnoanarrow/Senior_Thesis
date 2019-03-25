@@ -158,7 +158,8 @@ def CardParser(tourn_num, rank, deck_color, soup):
     rarity = ""
     mana_cost = 0
     card_color = ""
-    abc = re.compile("[a-z]")
+    sb_color = ""
+    sb_tracker = [[card_ID, number]]
     cardCheck = True
 
     # Each table corresponds to a new archetype
@@ -205,25 +206,42 @@ def CardParser(tourn_num, rank, deck_color, soup):
                                 mana_list = mana.get('class')
                                 if mana_list[1] == 'ms-cost':
                                     mana_type = mana_list[2]
-                                    mt = mana_type[2:]
-                                    if abc in mt:
+                                    mt = mana_type[3:]
+                                    if re.search("[a-z]", mt):
                                         # Creating the card color string
-                                        card_color += mt
+                                        if mt not in card_color:
+                                            card_color += mt
                                         mana_cost += 1
                                     else:
                                         mana_cost += int(mt)
                                 else:
                                     mana_type = mana_list[1]
-                                    mt = mana_type[2:]
-                                    card_color += mt
+                                    mt = mana_type[3:]
+                                    if mt not in card_color:
+                                        card_color += mt
                                     mana_cost += 1
 
-                                color_string_sorter = sorted(card_color)
-                                card_color = ''.join(color_string_sorter)
+                            color_string_sorter = sorted(card_color)
+                            card_color = ''.join(color_string_sorter)
 
-        # Here is where we decide whether it's a sideboard or otherwise
-        # If cardCheck == False: add to Cards table, card_ID++
-        # Else: just add to relevant Sideboard or colors table
+            if archetype == '\nSideboard ':
+                if card_color not in sb_color:
+                    sb_color += card_color
+
+                sb_tracker.append([card_ID, number])
+
+                if cardCheck == False:
+                    print("Add to cards table, no archetype")
+                    card_ID += 1
+            else:
+                if cardCheck == False:
+                    print("Add to cards table, all info")
+                    print("Add to colors table, all info")
+                    card_ID += 1
+                else:
+                    # if colors contains color and card_id, add number
+                    # else just add to colors
+        # Add to sideboard, same checks as 242 and 243, sort sb color
         # Once sideboard is populated, do decks table
 def main():
     i = 1
