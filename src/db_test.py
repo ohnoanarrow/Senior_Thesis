@@ -13,32 +13,80 @@ class Database:
 
         return None
 
-    def colors_search(conn,color,card_ID):
+
+    def cards_search(conn,cardname):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        name = (cardname,)
+        sql = ''' SELECT Card_ID
+                  FROM Cards
+                  WHERE Name=?'''
+
+        cur = conn.cursor()
+        cur.execute(sql,name)
+
+        ID = cur.fetchall()
+
+        return ID[0]
+
+
+    def colors_search(conn,deck_color,card_ID):
+        """
+        Query all rows in the colors table
+        :param conn: the Connection object
+        :return:
+        """
+        test = (deck_color,card_ID)
+        sql = ''' SELECT Number
+                  FROM Colors
+                  WHERE Color=?
+                  AND Card_ID=?'''
+
+        cur = conn.cursor()
+        cur.execute(sql,test)
+
+        number = cur.fetchall()
+
+        return number[0]
+
+    def sideboard_search(conn,sb_color,card_ID):
+        """
+        Query all rows in the tasks table
+        :param conn: the Connection object
+        :return:
+        """
+        test = (sb_color,card_ID)
+        cur = conn.cursor()
+        sql = ''' SELECT Number
+                  FROM Sideboard
+                  WHERE SB_Color=?
+                  AND Card_ID=?'''
+        number = cur.fetchall()
+
+        return number[0]
+
+
+    def colors_update(conn,card_ID,number):
         """
         Query all rows in the tasks table
         :param conn: the Connection object
         :return:
         """
         cur = conn.cursor()
-        cur.execute("SELECT {clr} FROM Colors WHERE {clr} = {color}")
+        cur.execute("UPDATE Colors SET Number = number WHERE Card_ID = card_ID")
 
-        rows = cur.fetchall()
 
-        return rows
-
-    def sideboard_search(conn,SB_color,card_ID):
+    def sideboard_update(conn,card_ID,number):
         """
         Query all rows in the tasks table
         :param conn: the Connection object
         :return:
         """
         cur = conn.cursor()
-        cur.execute("SELECT * FROM Sideboard")
-
-        rows = cur.fetchall()
-
-        return rows
-
+        cur.execute("UPDATE Sideboard SET Number = number WHERE Card_ID = card_ID")
 
 
     def create_cards(conn, test):

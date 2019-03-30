@@ -153,18 +153,19 @@ def DeckParser(tourn_num, soup):
 def CardParser(tourn_num, rank, deck_color, soup):
     global cards
     global card_ID
+    global conn
 
     str = re.compile("[0-9]")
 
     soup2 = soup.find('div', attrs={'class':"cards"})
     archetype = ""
     cardname = ""
-    number = ""
+    number = -1
     rarity = ""
     mana_cost = 0
     card_color = ""
     sb_color = ""
-    sb_tracker = [[card_ID, number]]
+    sb_tracker = []
     cardCheck = True
 
     # Each table corresponds to a new archetype
@@ -177,9 +178,11 @@ def CardParser(tourn_num, rank, deck_color, soup):
                 # Text children
                 for x in arch2.descendants:
                     global typelist
+                    length = len(x) - 1
                     # For finding archetypes
                     if x in typelist:
                         archetype = x
+                        archetype = archetype[1:length]
 
             # Individual cards
             elif string_finder[0] == 'cardItem':
@@ -194,15 +197,15 @@ def CardParser(tourn_num, rank, deck_color, soup):
                         rarity = rarity_letter[1]
 
                         qualities = attrs.get_text(strip=True)
-                        number = qualities[:1]
+                        number = int(qualities[:1])
                         cardname = qualities[1:]
 
                         if cardname not in cards:
                             cardCheck = False
                             cards.append(cardname)
                         else:
-                            # Query the card_ID base on the name
                             cardCheck = True
+
                     elif card_chars[position] == 'manaCost':
                         # If the current card isn't catalogued
                         mana_cost = 0
@@ -230,31 +233,59 @@ def CardParser(tourn_num, rank, deck_color, soup):
                             color_string_sorter = sorted(card_color)
                             card_color = ''.join(color_string_sorter)
 
-            if archetype == '\nSideboard ':
-                if card_color not in sb_color:
-                    sb_color += card_color
+                            if archetype == 'Sideboard':
+                                if card_color not in sb_color:
+                                    sb_color += card_color
 
-                sb_tracker.append([card_ID, number])
+                                sb_tracker.append([card_ID, number])
 
-                if cardCheck == False:
-                    print("Add to cards table, no archetype")
-                    card_ID += 1
+                                if cardCheck == False:
+                                    with conn:
+                                        cards_db = (card_ID,cardname,mana_cost,card_color,rarity,None,None,None)
+                                        Database.create_cards(conn,cards_db)
+                                    card_ID += 1
+                            else:
+                                if cardCheck == False:
+                                    with conn:
+                                        cards_db = (card_ID,cardname,mana_cost,card_color,rarity,archetype,None,None)
+                                        colors_db = (deck_color,card_ID,number)
+                                        Database.create_cards(conn,cards_db)
+                                        Database.create_colors(conn, colors_db)
+
+                                    card_ID += 1
+
+                        else:
+                            if archetype != 'Sideboard':
+                                with conn:
+                                    temp_ID = Database.cards_search(conn,cardname)
+                                    temp_Number = Database.colors_search(conn,deck_color,temp_ID[0])
+                                    temp_Number = int(temp_Number[0])
+                                    if temp_Number is not None:
+                                        number += temp_Number
+                                        Database.colors_update(conn,temp_ID,number)
+                                    else:
+                                        colors_db = (deck_color,temp_ID,number)
+                                        Database.create_colors(conn,colors_db)
+
+    sb_string_sorter = sorted(sb_color)
+    sb_color = ''.join(sb_string_sorter)
+    for y in range(len(sb_tracker)):
+        print(sb_tracker[y])
+        with conn:
+            temp_ID = y[0]
+            temp_Number = Database.sideboard_search(conn,sb_color,temp_ID)
+            temp_Number = int(temp_Number)
+            if temp_Number is not None:
+                number = int(y[1]) + temp_Number
+                Database.sideboard_update(conn,temp_ID,number)
             else:
-                if cardCheck == False:
-                    global conn
-                    with conn:
-                        cards_db = (card_ID,cardname,mana_cost,card_color,rarity,archetype,None,None)
-                        colors_db = (deck_color,card_ID,number)
-                        #Database.create_cards(conn,cards_db)
-                        Database.create_colors(conn, colors_db)
+                sideboard_db = (sb_color,temp_ID,y[1])
+                Database.create_sideboard(conn,sideboard_db)
 
-                    card_ID += 1
-                #else:
-                    #
-                    # if colors contains color and card_id, add number
-                    # else just add to colors
-        # Add to sideboard, same checks as 242 and 243, sort sb color
-        # Once sideboard is populated, do decks table
+    with conn:
+        decks_db = (tourn_num,rank,deck_color,sb_color)
+        Database.create_decks(conn,decks_db)
+
 def main():
     i = 1
 
