@@ -30,7 +30,10 @@ class Database:
 
         ID = cur.fetchall()
 
-        return ID[0]
+        if not ID:
+            return None
+        else:
+            return ID[0]
 
 
     def colors_search(conn,deck_color,card_ID):
@@ -50,7 +53,10 @@ class Database:
 
         number = cur.fetchall()
 
-        return number[0]
+        if not number:
+            return None
+        else:
+            return number[0]
 
     def sideboard_search(conn,sb_color,card_ID):
         """
@@ -59,15 +65,20 @@ class Database:
         :return:
         """
         test = (sb_color,card_ID)
-        cur = conn.cursor()
         sql = ''' SELECT Number
                   FROM Sideboard
                   WHERE SB_Color=?
                   AND Card_ID=?'''
+
+        cur = conn.cursor()
+        cur.execute(sql,test)
+
         number = cur.fetchall()
 
-        return number[0]
-
+        if not number:
+            return None
+        else:
+            return number[0]
 
     def colors_update(conn,card_ID,number):
         """
@@ -75,8 +86,13 @@ class Database:
         :param conn: the Connection object
         :return:
         """
+        test=(number,card_ID)
+        sql = ''' UPDATE Colors
+                  SET Number=?
+                  WHERE Card_ID=?'''
+
         cur = conn.cursor()
-        cur.execute("UPDATE Colors SET Number = number WHERE Card_ID = card_ID")
+        cur.execute(sql,test)
 
 
     def sideboard_update(conn,card_ID,number):
@@ -85,8 +101,13 @@ class Database:
         :param conn: the Connection object
         :return:
         """
+        test=(number,card_ID)
+        sql = ''' UPDATE Sideboard
+                  SET Number=?
+                  WHERE Card_ID=?'''
+
         cur = conn.cursor()
-        cur.execute("UPDATE Sideboard SET Number = number WHERE Card_ID = card_ID")
+        cur.execute(sql,test)
 
 
     def create_cards(conn, test):
@@ -122,7 +143,7 @@ class Database:
         :param test:
         :return: test id
         """
-        sql = ''' INSERT INTO Test(Tournament,Rank,Deck_Color,SB_Color)
+        sql = ''' INSERT INTO Decks(Tournament,Rank,Deck_Color,SB_Color)
                   VALUES(?,?,?,?) '''
         cur = conn.cursor()
         cur.execute(sql, test)
@@ -135,7 +156,7 @@ class Database:
         :param test:
         :return: test id
         """
-        sql = ''' INSERT INTO Test(SB_Color,Card_ID,Number)
+        sql = ''' INSERT INTO Sideboard(SB_Color,Card_ID,Number)
                   VALUES(?,?,?) '''
         cur = conn.cursor()
         cur.execute(sql, test)

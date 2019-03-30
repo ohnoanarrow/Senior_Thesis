@@ -112,7 +112,7 @@ def DeckParser(tourn_num, soup):
         if tag.strong is None:
             none_counter += 1
         # This is where we pull the top 4 decks
-        if none_counter > 0 and none_counter < 2 and rank_counter <= 1: #TODO change rank_counter back to 4
+        if none_counter > 0 and none_counter < 2 and rank_counter <= 4:
             # Making sure there is a value under the strong tag
             if tag.strong is not None:
                 color = tag.find('div', attrs={'class':"small"})
@@ -234,8 +234,7 @@ def CardParser(tourn_num, rank, deck_color, soup):
                             card_color = ''.join(color_string_sorter)
 
                             if archetype == 'Sideboard':
-                                if card_color not in sb_color:
-                                    sb_color += card_color
+                                sb_color += card_color
 
                                 sb_tracker.append([card_ID, number])
 
@@ -259,23 +258,22 @@ def CardParser(tourn_num, rank, deck_color, soup):
                                 with conn:
                                     temp_ID = Database.cards_search(conn,cardname)
                                     temp_Number = Database.colors_search(conn,deck_color,temp_ID[0])
-                                    temp_Number = int(temp_Number[0])
                                     if temp_Number is not None:
+                                        temp_Number = int(temp_Number[0])
                                         number += temp_Number
-                                        Database.colors_update(conn,temp_ID,number)
+                                        Database.colors_update(conn,temp_ID[0],number)
                                     else:
-                                        colors_db = (deck_color,temp_ID,number)
+                                        colors_db = (deck_color,temp_ID[0],number)
                                         Database.create_colors(conn,colors_db)
 
     sb_string_sorter = sorted(sb_color)
-    sb_color = ''.join(sb_string_sorter)
-    for y in range(len(sb_tracker)):
-        print(sb_tracker[y])
+    sb_color = ''.join(set(sb_string_sorter))
+    for y in sb_tracker:
         with conn:
             temp_ID = y[0]
             temp_Number = Database.sideboard_search(conn,sb_color,temp_ID)
-            temp_Number = int(temp_Number)
             if temp_Number is not None:
+                temp_Number = int(temp_Number)
                 number = int(y[1]) + temp_Number
                 Database.sideboard_update(conn,temp_ID,number)
             else:
