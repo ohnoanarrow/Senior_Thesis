@@ -1,6 +1,3 @@
-# import statements
-# from urllib.request import urlopen
-# import mechanize
 import requests
 import re
 import sqlite3
