@@ -66,7 +66,7 @@ def PageParser(page_number):
 
     counter = 0
     for link in soup.find_all('a', attrs={'href':re.compile(str)}):
-        if counter > 0 and counter <= 1 and link.get('href') is not None: #TODO Change this back to 20
+        if counter > 0 and counter <= 4 and link.get('href') is not None: #TODO Change this back to 20
             decks_page = 'https://mtgdecks.net/' + link.get('href')
             page = requests.get(decks_page)
             soupy = BeautifulSoup(page.text, 'html.parser')
@@ -118,7 +118,14 @@ def DeckParser(tourn_num, soup):
                 color = tag.find('div', attrs={'class':"small"})
                 for x in color.contents:
                     color = x.get('class')
-                    if color[0] != 'small-icon':
+                    if color[0] == 'small-icon':
+                        for y in x.contents:
+                            mini = y.get('class')
+                            # Saves the color in a placeholder so I can manipulate the string contents
+                            placeholder_string = mini[2]
+                            # Concatenating the single letter indicating color onto the color string
+                            color_string += placeholder_string[3]
+                    else:
                         # Saves the color in a placeholder so I can manipulate the string contents
                         placeholder_string = color[2]
                         # Concatenating the single letter indicating color onto the color string
@@ -160,7 +167,7 @@ def CardParser(tourn_num, rank, deck_color, soup):
     soup2 = soup.find('div', attrs={'class':"cards"})
     archetype = ""
     cardname = ""
-    number = -1
+    number = 0
     rarity = ""
     mana_cost = 0
     card_color = ""
@@ -205,84 +212,95 @@ def CardParser(tourn_num, rank, deck_color, soup):
                             cards.append(cardname)
                         else:
                             cardCheck = True
-
                     elif card_chars[position] == 'manaCost':
-                        # If the current card isn't catalogued
                         mana_cost = 0
                         card_color = ""
-                        if cardCheck is False:
-                            for mana in attrs.find_all('span'):
-                                mana_list = mana.get('class')
-                                if mana_list[1] == 'ms-cost':
-                                    mana_type = mana_list[2]
-                                    mt = mana_type[3:]
-                                    if re.search("[a-z]", mt):
-                                        # Creating the card color string
-                                        if mt not in card_color:
-                                            card_color += mt
-                                        mana_cost += 1
-                                    else:
-                                        mana_cost += int(mt)
-                                else:
-                                    mana_type = mana_list[1]
-                                    mt = mana_type[3:]
-                                    if mt not in card_color:
-                                        card_color += mt
+                        for mana in attrs.find_all('span'):
+                            mana_list = mana.get('class')
+                            if mana_list[1] == 'ms-cost':
+                                mana_type = mana_list[2]
+                                mt = mana_type[3:]
+                                if re.search("[a-z]", mt):
+                                    # Creating the card color string
+                                    if mt == 'bp':
+                                        mt = "z"
+                                    card_color += mt
                                     mana_cost += 1
-
-                            color_string_sorter = sorted(card_color)
-                            card_color = ''.join(color_string_sorter)
-
-                            if archetype == 'Sideboard':
-                                sb_color += card_color
-
-                                sb_tracker.append([card_ID, number])
-
-                                if cardCheck == False:
-                                    with conn:
-                                        cards_db = (card_ID,cardname,mana_cost,card_color,rarity,None,None,None)
-                                        Database.create_cards(conn,cards_db)
-                                    card_ID += 1
+                                else:
+                                    mana_cost += int(mt)
                             else:
-                                if cardCheck == False:
-                                    with conn:
-                                        cards_db = (card_ID,cardname,mana_cost,card_color,rarity,archetype,None,None)
-                                        colors_db = (deck_color,card_ID,number)
-                                        Database.create_cards(conn,cards_db)
-                                        Database.create_colors(conn, colors_db)
+                                mana_type = mana_list[1]
+                                mt = mana_type[3:]
+                                if mt == 'bp':
+                                    mt = "z"
+                                card_color += mt
+                                mana_cost += 1
 
+                        color_string_sorter = sorted(card_color)
+                        card_color = ''.join(set(color_string_sorter))
+
+                        if archetype == 'Sideboard':
+                            if card_color == 'bp':
+                                card_color = "z"
+                            sb_color += card_color
+
+                            with conn:
+                                if cardCheck == False:
+                                    cards_db = (card_ID,cardname,mana_cost,card_color,rarity,None,None,None)
+                                    Database.create_cards(conn,cards_db)
+                                    sb_tracker.append([card_ID, number, cardCheck])
                                     card_ID += 1
+
+                                else:
+                                    temp_ID = Database.cards_search(conn,cardname)
+                                    sb_tracker.append([temp_ID[0], number, cardCheck])
 
                         else:
+                            if cardCheck == False:
+                                with conn:
+                                    cards_db = (card_ID,cardname,mana_cost,card_color,rarity,archetype,None,None)
+                                    colors_db = (deck_color,card_ID,number)
+                                    Database.create_cards(conn,cards_db)
+                                    Database.create_colors(conn, colors_db)
+
+                                card_ID += 1
+
+                        if cardCheck == True:
                             if archetype != 'Sideboard':
                                 with conn:
                                     temp_ID = Database.cards_search(conn,cardname)
                                     temp_Number = Database.colors_search(conn,deck_color,temp_ID[0])
                                     if temp_Number is not None:
                                         temp_Number = int(temp_Number[0])
-                                        number += temp_Number
-                                        Database.colors_update(conn,temp_ID[0],number)
+                                        deck_number = number + temp_Number
+                                        Database.colors_update(conn,deck_color,temp_ID[0],deck_number)
                                     else:
                                         colors_db = (deck_color,temp_ID[0],number)
                                         Database.create_colors(conn,colors_db)
 
-    sb_string_sorter = sorted(sb_color)
-    sb_color = ''.join(set(sb_string_sorter))
+    sb_string_sorter = sorted(set(sb_color))
+    sb_color = ''.join(sb_string_sorter)
     for y in sb_tracker:
         with conn:
-            temp_ID = y[0]
-            temp_Number = Database.sideboard_search(conn,sb_color,temp_ID)
-            if temp_Number is not None:
-                temp_Number = int(temp_Number)
-                number = int(y[1]) + temp_Number
-                Database.sideboard_update(conn,temp_ID,number)
+            if y[2] is False:
+                sb_db = (sb_color,y[0],y[1])
+                Database.create_sideboard(conn,sb_db)
             else:
-                sideboard_db = (sb_color,temp_ID,y[1])
-                Database.create_sideboard(conn,sideboard_db)
+                temp_ID = y[0]
+                temp_Number = Database.sideboard_search(conn,sb_color,temp_ID)
+                if temp_Number is not None:
+                    temp_Number = int(temp_Number[0])
+                    sb_number = y[1] + temp_Number
+                    Database.sideboard_update(conn,sb_color,temp_ID,sb_number)
+                else:
+                    sideboard_db = (sb_color,temp_ID,y[1])
+                    Database.create_sideboard(conn,sideboard_db)
 
     with conn:
         decks_db = (tourn_num,rank,deck_color,sb_color)
         Database.create_decks(conn,decks_db)
+
+
 
 def main():
     i = 1

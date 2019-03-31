@@ -80,31 +80,33 @@ class Database:
         else:
             return number[0]
 
-    def colors_update(conn,card_ID,number):
+    def colors_update(conn,color,card_ID,number):
         """
         Query all rows in the tasks table
         :param conn: the Connection object
         :return:
         """
-        test=(number,card_ID)
+        test=(number,card_ID,color)
         sql = ''' UPDATE Colors
                   SET Number=?
-                  WHERE Card_ID=?'''
+                  WHERE Card_ID=?
+                  AND Color=?'''
 
         cur = conn.cursor()
         cur.execute(sql,test)
 
 
-    def sideboard_update(conn,card_ID,number):
+    def sideboard_update(conn,color,card_ID,number):
         """
         Query all rows in the tasks table
         :param conn: the Connection object
         :return:
         """
-        test=(number,card_ID)
+        test=(number,card_ID,color)
         sql = ''' UPDATE Sideboard
                   SET Number=?
-                  WHERE Card_ID=?'''
+                  WHERE Card_ID=?
+                  AND SB_Color=?'''
 
         cur = conn.cursor()
         cur.execute(sql,test)
