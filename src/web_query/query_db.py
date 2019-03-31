@@ -22,10 +22,10 @@ class Database:
         """
         sql = ''' SELECT Name
                   FROM Cards
-                  WHERE Archetype='Sideboard''''
+                  WHERE Archetype IS NULL'''
 
         cur = conn.cursor()
-        cur.execute(sql,test)
+        cur.execute(sql)
 
         rows = cur.fetchall()
 
@@ -52,9 +52,11 @@ class Database:
         :param conn: the Connection object
         :return:
         """
+        query = "Creature"
+        test = (query,)
         sql = ''' SELECT Name
                   FROM Cards
-                  WHERE Archetype='Creature''''
+                  WHERE Archetype=?'''
 
         cur = conn.cursor()
         cur.execute(sql,test)
