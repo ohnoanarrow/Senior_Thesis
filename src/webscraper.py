@@ -12,6 +12,7 @@ db_file = "databases/MtG.db"
 conn = Database.create_connection(db_file)
 
 color_dictionary = {
+    "c": "colorless",
     "u": "mono blue",
     "w": "mono white",
     "g": "mono green",
@@ -66,7 +67,7 @@ def PageParser(page_number):
 
     counter = 0
     for link in soup.find_all('a', attrs={'href':re.compile(str)}):
-        if counter > 0 and counter <= 4 and link.get('href') is not None: #TODO Change this back to 20
+        if counter > 0 and counter <= 20 and link.get('href') is not None:
             decks_page = 'https://mtgdecks.net/' + link.get('href')
             page = requests.get(decks_page)
             soupy = BeautifulSoup(page.text, 'html.parser')
@@ -133,7 +134,11 @@ def DeckParser(tourn_num, soup):
                 # Sorting the letters in alphabetical order for dictionary reference
                 color_string_sorter = sorted(color_string)
                 color_string = ''.join(color_string_sorter)
-                deck_color = color_dictionary.get(color_string)
+                if color_string in color_dictionary:
+                    deck_color = color_dictionary.get(color_string)
+
+                else:
+                    deck_color = color_string
 
                 # Making my soup based on which deck I'm looking at
                 if rank_counter == 1:
@@ -201,7 +206,10 @@ def CardParser(tourn_num, rank, deck_color, soup):
                     if card_chars[position] == 'number':
                         rarity_class = attrs.find('span')
                         rarity_letter = rarity_class.get('class')
-                        rarity = rarity_letter[1]
+                        if len(rarity_letter) > 1:
+                            rarity = rarity_letter[1]
+                        else:
+                            rarity = None
 
                         qualities = attrs.get_text(strip=True)
                         number = int(qualities[:1])
@@ -303,11 +311,8 @@ def CardParser(tourn_num, rank, deck_color, soup):
 
 
 def main():
-    i = 1
-
-    # TODO Change this back to go through all the pages
-    # for i in range(1,3):
-    PageParser(str(i))
+    for i in range(1,11):
+        PageParser(str(i))
 
 if __name__ == '__main__':
     main()
