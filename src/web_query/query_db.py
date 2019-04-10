@@ -56,7 +56,8 @@ class Database:
         test = (query,)
         sql = ''' SELECT Name
                   FROM Cards
-                  WHERE Archetype=?'''
+                  WHERE Archetype=?
+                  AND Toughness IS NULL'''
 
         cur = conn.cursor()
         cur.execute(sql,test)

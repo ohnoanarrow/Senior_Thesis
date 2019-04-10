@@ -62,7 +62,9 @@ def creature_update(conn, url, row):
 
     for x in soup.find_all('tr'):
         for y in  x.find_all('td',string=True):
-            if re.search("[0-9]",y.string):
+            if re.search("[a-zA-Z]",y.string):
+                pass
+            else:
                 pt = y.string
                 pt_list = pt.split("/")
                 try:
