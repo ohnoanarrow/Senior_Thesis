@@ -38,7 +38,9 @@ with conn:
                     rank_object[rank] += 1
                     color_rank_array[elem] = rank_object
 
+
 for deck in color_rank_array:
+    print(deck)
     total = 0
     for count in range(1,5):
         total += deck[count]
