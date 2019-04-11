@@ -16,7 +16,6 @@ def find_stronger_decks(conn,color):
                     color_ref.append([deck[0],1])
         color_ref = sorted(color_ref, key=lambda x: x[1], reverse=True)
 
-
 def main():
     db_file = 'databases/MtG.db'
     conn = Database.create_connection(db_file)
