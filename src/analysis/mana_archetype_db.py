@@ -36,3 +36,21 @@ class Database:
         rows = cur.fetchall()
 
         return rows
+
+    def deck_count(conn,color):
+        """
+        Query all rows in the colors table
+        :param conn: the Connection object
+        :return:
+        """
+        test = (color,)
+        sql = ''' SELECT count(*)
+                    FROM Decks
+                    WHERE Deck_Color=?'''
+
+        cur = conn.cursor()
+        cur.execute(sql,test)
+
+        rows = cur.fetchall()
+
+        return rows

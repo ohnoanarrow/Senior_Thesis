@@ -19,7 +19,7 @@ class Database:
         :param conn: the Connection object
         :return:
         """
-        sql = ''' SELECT Number, Name
+        sql = ''' SELECT Name, Number
                     FROM Colors
                     INNER JOIN Cards
                     ON Colors.Card_ID=Cards.Card_ID
@@ -42,7 +42,7 @@ class Database:
         :return:
         """
         test=(color,)
-        sql = ''' SELECT Number, Name
+        sql = ''' SELECT Name, Number
                     FROM Colors
                     INNER JOIN Cards
                     ON Colors.Card_ID=Cards.Card_ID

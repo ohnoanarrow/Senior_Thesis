@@ -2,10 +2,10 @@ import csv
 import sqlite3
 # import leather
 # import statsmodels
+from top_colors_db import Database
 import numpy as np
 import pandas as pd
 import seaborn as sns
-from top_colors_db import Database
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt; plt.rcdefaults()
 
