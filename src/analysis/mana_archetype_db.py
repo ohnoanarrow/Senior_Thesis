@@ -20,8 +20,6 @@ class Database:
         :return:
         """
         arch = 'Land'
-        arch2 = (arch,)
-        color2 = (color,)
         test = (arch,color)
         sql = ''' SELECT Color, Number, Mana_Cost, Archetype
                     FROM Colors
