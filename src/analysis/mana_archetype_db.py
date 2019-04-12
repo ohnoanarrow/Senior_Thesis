@@ -21,7 +21,7 @@ class Database:
         """
         arch = 'Land'
         test = (arch,color)
-        sql = ''' SELECT Color, Number, Mana_Cost, Archetype
+        sql = ''' SELECT Color, Number, Mana_Cost, Archetype, Rarity
                     FROM Colors
                     INNER JOIN Cards
                     ON Colors.Card_ID=Cards.Card_ID
