@@ -40,6 +40,7 @@ def mana_and_archetype(rows):
             if count == 0:
                 arch_array.append([color,number,archetype])
 
+    mana_array = sorted(mana_array, key=lambda x: x[2], reverse=False)
 
 def main():
     db_file = 'databases/MtG.db'
