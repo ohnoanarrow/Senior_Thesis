@@ -64,6 +64,8 @@ for x in top_colors_array:
     else:
         pass
 
+print(top_decks)
+
 other_decks = 767-top_decks
 labels.append("other")
 sizes.append(other_decks)

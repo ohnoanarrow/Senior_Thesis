@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt; plt.rcdefaults()
 
 def find_stronger_decks(conn,color):
     sns.set(style="whitegrid")
+
     with conn:
         color_ref = []
         tournament_rank = Database.tourn_rank(conn,color)
@@ -28,8 +29,10 @@ def find_stronger_decks(conn,color):
     color_headers = [["color","number"]]
     color_headers += color_ref
     color_final = []
+
     for i in range(0,6):
         color_final.append(color_headers[i])
+        print(color_headers[i])
 
     with open('src/analysis/top_four_file.csv', 'w', newline='') as f:
         writer = csv.writer(f)

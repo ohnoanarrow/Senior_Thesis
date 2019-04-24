@@ -22,19 +22,20 @@ def mana_and_archetype(rows,color_number):
         rarity = row[4]
         # The following lines check to see if both the color and mana cost are
         # in an item in the 2d array
-        if len(mana_array) == 0:
-            mana_array.append([color,number,cost])
-
-        else:
-            count = 0
-            for i in range(len(mana_array)):
-                if color in mana_array[i]:
-                    if cost in mana_array[i]:
-                        mana_array[i][1] += number
-                        count += 1
-
-            if count == 0:
+        if archetype != 'Land':
+            if len(mana_array) == 0:
                 mana_array.append([color,number,cost])
+
+            else:
+                count = 0
+                for i in range(len(mana_array)):
+                    if color in mana_array[i]:
+                        if cost in mana_array[i]:
+                            mana_array[i][1] += number
+                            count += 1
+
+                if count == 0:
+                    mana_array.append([color,number,cost])
 
         if len(arch_array) == 0:
             arch_array.append([color,number,archetype])
@@ -65,9 +66,18 @@ def mana_and_archetype(rows,color_number):
                 rare_array.append([color,number,rarity])
 
     mana_array = sorted(mana_array, key=lambda x: x[2], reverse=False)
+    totalcards = 0
     for j in range(len(mana_array)):
+        totalcards += mana_array[j][1]
         mana_array[j][1] /= color_number
+        print(mana_array[j])
 
+    totalcards2 = 0
+    for j in range(len(arch_array)):
+        totalcards2 += arch_array[j][1]
+
+    print(totalcards)
+    print(totalcards2)
     plot_results(mana_array,arch_array,rare_array,row[0])
 
 
@@ -81,8 +91,10 @@ def plot_results(mana_array,arch_array,rare_array,color):
     labels = []
     sizes = []
     for arc in arch_array:
+        print(arc)
         labels.append(arc[2])
         sizes.append(arc[1])
+
 
     colors = ['#ff9999','#66b3ff','#99ff99','#ffcc99']
 
@@ -111,6 +123,7 @@ def plot_results(mana_array,arch_array,rare_array,color):
     rare_labels = []
     rare_sizes = []
     for rar in rare_array:
+        print(rar)
         rare_labels.append(rar[2])
         rare_sizes.append(rar[1])
 
@@ -134,6 +147,7 @@ def main():
         for color in colors:
             rows = Database.man_arch(conn,color)
             color_number = Database.deck_count(conn,color)
+            print(color_number)
             mana_and_archetype(rows,color_number[0][0])
 
 if __name__ == '__main__':
