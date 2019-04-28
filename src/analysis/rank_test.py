@@ -6,6 +6,7 @@ from top_colors_db import Database
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from scipy import stats
 import matplotlib.pyplot as plt
 import matplotlib.pyplot as plt; plt.rcdefaults()
 
@@ -40,7 +41,6 @@ with conn:
 
 
 for deck in color_rank_array:
-    print(deck)
     total = 0
     for count in range(1,5):
         total += deck[count]
@@ -57,6 +57,7 @@ count = 0
 top_decks = 0
 for x in top_colors_array:
     if count < 10:
+        print(x)
         labels.append(x[0])
         sizes.append(x[1])
         top_decks += x[1]
@@ -64,7 +65,6 @@ for x in top_colors_array:
     else:
         pass
 
-print(top_decks)
 
 other_decks = 767-top_decks
 labels.append("other")
@@ -120,6 +120,85 @@ for x in fourth[:4]:
             values.append(x[y])
     values.append("Fourth")
     headers.append(values)
+
+chaos_array = []
+mono_array = []
+temur_array = []
+bant_array = []
+for x in headers:
+    if x[0] == 'chaos':
+        if x[2] == 'First':
+            i = 0
+            for i in range(x[1]):
+                chaos_array.append(1)
+        elif x[2] == 'Second':
+            i = 0
+            for i in range(x[1]):
+                chaos_array.append(2)
+        elif x[2] == 'Third':
+            i = 0
+            for i in range(x[1]):
+                chaos_array.append(3)
+        else:
+            i = 0
+            for i in range(x[1]):
+                chaos_array.append(4)
+    elif x[0] == 'mono green':
+        if x[2] == 'First':
+            i = 0
+            for i in range(x[1]):
+                mono_array.append(1)
+        elif x[2] == 'Second':
+            i = 0
+            for i in range(x[1]):
+                mono_array.append(2)
+        elif x[2] == 'Third':
+            i = 0
+            for i in range(x[1]):
+                mono_array.append(3)
+        else:
+            i = 0
+            for i in range(x[1]):
+                mono_array.append(4)
+    elif x[0] == 'temur':
+        if x[2] == 'First':
+            i = 0
+            for i in range(x[1]):
+                temur_array.append(1)
+        elif x[2] == 'Second':
+            i = 0
+            for i in range(x[1]):
+                temur_array.append(2)
+        elif x[2] == 'Third':
+            i = 0
+            for i in range(x[1]):
+                temur_array.append(3)
+        else:
+            i = 0
+            for i in range(x[1]):
+                temur_array.append(4)
+    elif x[0] == 'bant':
+        if x[2] == 'First':
+            i = 0
+            for i in range(x[1]):
+                bant_array.append(1)
+        elif x[2] == 'Second':
+            i = 0
+            for i in range(x[1]):
+                bant_array.append(2)
+        elif x[2] == 'Third':
+            i = 0
+            for i in range(x[1]):
+                bant_array.append(3)
+        else:
+            i = 0
+            for i in range(x[1]):
+                bant_array.append(4)
+
+print("Chaos Std, mean, median, mode:",np.std(chaos_array),np.mean(chaos_array),np.median(chaos_array),stats.mode(chaos_array))
+print("Mono Std, mean, median, mode:",np.std(mono_array),np.mean(mono_array),np.median(mono_array),stats.mode(mono_array))
+print("Temur Std, mean, median, mode:",np.std(temur_array),np.mean(temur_array),np.median(temur_array),stats.mode(temur_array))
+print("Bant Std, mean, median, mode:",np.std(bant_array),np.mean(bant_array),np.median(bant_array),stats.mode(bant_array))
 
 with open('src/analysis/rank_file.csv', 'w', newline='') as f:
     writer = csv.writer(f)

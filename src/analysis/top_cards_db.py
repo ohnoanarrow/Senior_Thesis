@@ -19,14 +19,12 @@ class Database:
         :param conn: the Connection object
         :return:
         """
-        sql = ''' SELECT Name, Number
+        sql = ''' SELECT Name, Number, Colors.Card_ID
                     FROM Colors
                     INNER JOIN Cards
                     ON Colors.Card_ID=Cards.Card_ID
-                    WHERE Name
-                    NOT IN ('Island','Swamp','Plains','Forest','Mountain')
-                    ORDER BY Number
-                    DESC LIMIT 20'''
+                    WHERE Rarity!='B'
+                    ORDER BY Colors.Card_ID'''
 
         cur = conn.cursor()
         cur.execute(sql)
@@ -46,8 +44,7 @@ class Database:
                     FROM Colors
                     INNER JOIN Cards
                     ON Colors.Card_ID=Cards.Card_ID
-                    WHERE Name
-                    NOT IN ('Island','Swamp','Plains','Forest','Mountain')
+                    WHERE Rarity!='B'
                     AND Color=?
                     ORDER BY Number
                     DESC LIMIT 20'''

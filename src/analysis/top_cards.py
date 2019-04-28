@@ -10,8 +10,26 @@ import matplotlib.pyplot as plt; plt.rcdefaults()
 def plot_data(rows):
     sns.set(style="whitegrid")
 
+    position = 0
+    totals = []
+    cards = []
+    for row in rows:
+        if not totals:
+            totals.append([row[0],row[1],row[2]])
+        else:
+            if row[2] != totals[position][2]:
+                totals.append([row[0],row[1],row[2]])
+                position += 1
+            else:
+                totals[position][1] += row[1]
+
+    topcards = sorted(totals, key=lambda x: x[1], reverse=True)
+    for card in topcards[:20]:
+        cards.append([card[0],card[1]])
+        print(card)
+
     top_headers=[["name","number"]]
-    top_headers += rows
+    top_headers += cards
 
     with open('src/analysis/topcards_file.csv', 'w', newline='') as f:
         writer = csv.writer(f)

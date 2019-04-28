@@ -20,7 +20,7 @@ class Database:
         :return:
         """
         test = (color,)
-        sql = ''' SELECT Color, Number, Mana_Cost, Archetype, Rarity
+        sql = ''' SELECT Color, Number, Mana_Cost, Archetype, Rarity, Card_Color
                     FROM Colors
                     INNER JOIN Cards
                     ON Colors.Card_ID=Cards.Card_ID

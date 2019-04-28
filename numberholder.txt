@@ -1,0 +1,20 @@
+['chaos', 90]
+['mono green', 68]
+['temur', 61]
+['bant', 55]
+['azorius', 47]
+['grixis', 44]
+['rainbow', 43]
+['aggression', 40]
+['jund', 38]
+['gruul', 38]
+Chaos Std, mean, median, mode: 1.0766316930450894 2.4555555555555557 3.0 ModeResult(mode=array([3]), count=array([31]))
+Mono Std, mean, median, mode: 1.1156134750017752 2.426470588235294 2.0 ModeResult(mode=array([1]), count=array([19]))
+Temur Std, mean, median, mode: 1.237540251457101 2.30188679245283 2.0 ModeResult(mode=array([1]), count=array([18]))
+Bant Std, mean, median, mode: 0.9995407577254934 2.0303030303030303 3.0 ModeResult(mode=array([3]), count=array([17]))
+
+MANA CURVE
+chaos  Std, mean, median, mode: 1.143002730372325 1.94715556753842 2.0 ModeResult(mode=array([1]), count=array([1410]))
+mono green  Std, mean, median, mode: 2.4916418286336124 2.4130359010108053 1.0 ModeResult(mode=array([1]), count=array([1162]))
+temur  Std, mean, median, mode: 1.2361016347874105 1.8281679089839153 1.0 ModeResult(mode=array([1]), count=array([1300]))
+bant  Std, mean, median, mode: 1.3659611654972783 1.966265060240964 2.0 ModeResult(mode=array([1]), count=array([925]))
